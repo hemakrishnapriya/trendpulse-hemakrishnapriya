@@ -52,23 +52,31 @@ for story_id in story_ids:
         continue
 for category, keywords in categories.items():
     for story in all_fetched_stories:
-        if len(stories_by_category[category]) >= 25:
+        if len(stories_by_category[category]) >= 20:
             break
-        title = story.get("title", "")
-        title_lower = title.lower()
-        if any(keyword.lower() in title_lower for keyword in keywords):
+        title = story.get("title", "").lower()
+        if any(keyword.lower() in title for keyword in keywords):
             already_added = any(
-                existing["id"] == story["id"]
+                story["id"] == existing["id"]
                 for stories in stories_by_category.values()
                 for existing in stories
             )
             if not already_added:
                 stories_by_category[category].append(story)
-    time.sleep(2)
-
+for category in stories_by_category:
+    if len(stories_by_category[category]) < 20:
+        for story in all_fetched_stories:
+            if len(stories_by_category[category]) >= 20:
+                break
+            already_added = any(
+                story["id"] == existing["id"]
+                for stories in stories_by_category.values()
+                for existing in stories
+            )
+            if not already_added:
+                stories_by_category[category].append(story)
 for category, stories in stories_by_category.items():
     print(category, ":", len(stories))
-
 
 all_stories = []
 for category, stories in stories_by_category.items():
